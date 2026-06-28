@@ -1,0 +1,34 @@
+# --- Secrets & credentials (never commit) ---
+.env
+.env.*
+*.key
+*.pem
+*.pfx
+*secret*
+*credential*
+*.token
+# --- Dependencies / build ---
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+.venv/
+venv/
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+# --- VS Code: ignore local settings but DO share the MCP config ---
+.vscode/*
+!.vscode/mcp.json
+# --- Local AI-tool config (per-machine, per-tool — keep out of the shared template) ---
+.claude/
+.cursor/
+.github/copilot-instructions.md
+# (Note: .mcp.json is intentionally committed so the codebase-memory MCP is shareable.)
+# --- Upgrade backups (created by setup; never commit) ---
+backup/
+# --- Local-only generated output (optional: remove if you want to track exports) ---
+# output/

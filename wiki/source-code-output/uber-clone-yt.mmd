@@ -1,0 +1,25 @@
+flowchart TD
+  App["App"]
+  HomeScreen["HomeScreen"]
+  Map["Map"]
+  MapScreen["MapScreen"]
+  NavFavourites["NavFavourites"]
+  NavOptions["NavOptions"]
+  NavigateCard["NavigateCard"]
+  RideOptionsCard["RideOptionsCard"]
+  getTravelTime["getTravelTime"]
+  selectDestination["selectDestination"]
+  selectOrigin["selectOrigin"]
+  selectTravelTimeInformation["selectTravelTimeInformation"]
+  setOrigin["setOrigin"]
+  setDestination["setDestination"]
+  setTravelTimeInformation["setTravelTimeInformation"]
+  HomeScreen --> setOrigin
+  HomeScreen --> setDestination
+  HomeScreen --> NavOptions
+  HomeScreen --> NavFavourites
+  Map --> getTravelTime
+  MapScreen --> Map
+  NavigateCard --> setDestination
+  NavigateCard --> NavFavourites
+  getTravelTime --> setTravelTimeInformation

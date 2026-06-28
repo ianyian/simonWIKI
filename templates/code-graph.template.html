@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<!-- Interactive code-graph report. ingest-sourcecode fills {{MODULE}} and {{GRAPH_JSON}}
+     ({{GRAPH_JSON}} = contents of <module>.graph.json, embedded so the file is self-contained).
+     vis-network (CDN) · labels · role colors brightened by connections · line width+particles by
+     strength · animated flowing particles · hands-free auto-tour · click a node to inspect. -->
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{MODULE}} — code graph</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.9/dist/vis-network.min.js"></script>
+<style>
+*{box-sizing:border-box} html,body{margin:0;height:100%;background:#070a16;color:#e2e8f0;font-family:-apple-system,Segoe UI,Roboto,sans-serif;overflow:hidden}
+#hdr{position:fixed;top:0;left:0;right:0;padding:12px 18px;z-index:5;background:linear-gradient(#070a16ee,#070a1600);pointer-events:none}
+#hdr h1{margin:0;font-size:17px} #hdr .m{font-size:12px;opacity:.7}
+#net{position:fixed;inset:0}
+#info{position:fixed;right:16px;top:64px;width:230px;background:#0b1020e6;border:1px solid #1e293b;border-radius:10px;padding:14px;font-size:13px;z-index:5}
+#info .k{opacity:.6} #info b{color:#fff} ul{margin:6px 0;padding-left:18px} li{margin:1px 0}
+#ctl{position:fixed;left:16px;top:62px;z-index:6} #ctl button{background:#0b1020e6;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer}
+.legend{position:fixed;left:16px;bottom:14px;font-size:11px;z-index:5;opacity:.85;line-height:1.7}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:middle}
+</style></head>
+<body>
+<div id="hdr"><h1>{{MODULE}} — interactive code graph</h1>
+<div class="m">auto-presenting · drag · scroll to zoom · click a node (pauses)</div></div>
+<div id="ctl"><button id="toggle">⏸ Pause</button></div>
+<div id="net"></div>
+<div id="info">Auto-tour running — each node glides to center in turn. Click any node to inspect.</div>
+<div class="legend">
+<span class="dot" style="background:#1e90ff"></span>root
+<span class="dot" style="background:#5b7cff"></span>view
+<span class="dot" style="background:#ff2d6b"></span>data hub
+<span class="dot" style="background:#19e3a5"></span>shared
+<span class="dot" style="background:#ffb020"></span>card/util
+<span class="dot" style="background:#9aa7bd"></span>helper
+<br>size & brightness = connections · line thickness & particle count = relationship strength</div>
+<script>
+var DATA={{GRAPH_JSON}};
+var BASE={root:[30,144,255],view:[91,124,255],hub:[255,45,107],shared:[25,227,165],util:[255,176,32],helper:[154,167,189]};
+var deg={}; DATA.calls.forEach(function(e){deg[e.from]=(deg[e.from]||0)+1;deg[e.to]=(deg[e.to]||0)+1;});
+var maxd=Math.max.apply(null,Object.values(deg).concat([1]));
+var maxStr=Math.max.apply(null,DATA.calls.map(function(c){return deg[c.to]||0;}).concat([1]));
+function L(a,b,t){return Math.round(a+(b-a)*t);}
+function rgb(role,d){var c=BASE[role]||BASE.view,t=0.12+0.6*(d/maxd);return 'rgb('+L(c[0],255,t)+','+L(c[1],255,t)+','+L(c[2],255,t)+')';}
+var fileOf={},roleOf={}; DATA.nodes.forEach(function(n){fileOf[n.id]=n.file;roleOf[n.id]=n.role||'view';});
+function nb(id,w){return DATA.calls.filter(function(e){return e[w]===id;}).map(function(e){return w==='target'?e.source:e.target;});}
+
+var nodes=new vis.DataSet(DATA.nodes.map(function(n){var d=deg[n.id]||0;return {
+  id:n.id,label:n.id,value:d+2,color:{background:rgb(n.role||'view',d),border:rgb(n.role||'view',d)},
+  font:{color:'#e6ecf7',size:15,strokeWidth:3,strokeColor:'#070a16'}};}));
+var rawEdges=DATA.calls.map(function(e,i){return {id:i,from:e.from,to:e.to,str:(deg[e.to]||0)};});
+var edges=new vis.DataSet(rawEdges.map(function(e){return {id:e.id,from:e.from,to:e.to,
+  width:0.5+3*(e.str/maxStr),color:{color:'rgba(120,150,255,0.25)',highlight:'#ff5a96'},smooth:{type:'continuous'}};}));
+
+var net=new vis.Network(document.getElementById('net'),{nodes:nodes,edges:edges},{
+ nodes:{shape:'dot',scaling:{min:10,max:40}},
+ edges:{arrows:{to:{enabled:true,scaleFactor:0.5}}},
+ physics:{barnesHut:{gravitationalConstant:-7000,springLength:130,damping:0.25},stabilization:{iterations:200}},
+ interaction:{hover:true}});
+
+// flowing particles along edges (custom canvas animation)
+net.on('afterDrawing',function(ctx){
+ var pos=net.getPositions(), now=performance.now()/1000;
+ rawEdges.forEach(function(e){
+  var a=pos[e.from],b=pos[e.to]; if(!a||!b)return;
+  var hot=(focus&&(e.from===focus||e.to===focus));
+  var n=1+Math.round(3*(e.str/maxStr))+(hot?2:0);
+  for(var i=0;i<n;i++){
+   var f=((now*0.22)+(i/n)+e.id*0.13)%1;
+   var x=a.x+(b.x-a.x)*f, y=a.y+(b.y-a.y)*f;
+   ctx.beginPath();ctx.arc(x,y,hot?3:2,0,6.283);
+   ctx.fillStyle=hot?'rgba(255,120,170,0.95)':'rgba(150,185,255,0.85)';ctx.fill();
+  }
+ });
+});
+function loop(){net.redraw();requestAnimationFrame(loop);} requestAnimationFrame(loop);
+
+var focus=null;
+function highlight(id){
+ focus=id;
+ nodes.update(DATA.nodes.map(function(n){var d=deg[n.id]||0,on=(n.id===id);
+   return {id:n.id,color:{background:on?'#ffffff':rgb(n.role||'view',d),border:on?'#ffffff':rgb(n.role||'view',d)},
+           borderWidth:on?3:1};}));
+ var info=document.getElementById('info'),cb=nb(id,'target'),ce=nb(id,'source');
+ info.innerHTML='<b style="font-size:15px">'+id+'</b><br><span class="k">'+(fileOf[id]||'')+'</span>'+
+  '<p>Called by ('+cb.length+'):<ul>'+(cb.map(function(c){return '<li>'+c+'</li>';}).join('')||'<li class=k>—</li>')+'</ul></p>'+
+  '<p>Calls ('+ce.length+'):<ul>'+(ce.map(function(c){return '<li>'+c+'</li>';}).join('')||'<li class=k>—</li>')+'</ul></p>';
+ net.selectNodes([id]);
+ net.focus(id,{scale:1.25,animation:{duration:1200,easingFunction:'easeInOutCubic'}});
+}
+var order=DATA.nodes.slice().sort(function(a,b){return (deg[b.id]||0)-(deg[a.id]||0);});
+var idx=0,playing=true,timer=null;
+function step(){highlight(order[idx%order.length].id);idx++;}
+function play(){playing=true;document.getElementById('toggle').textContent='⏸ Pause';clearInterval(timer);step();timer=setInterval(step,3600);}
+function pause(){playing=false;document.getElementById('toggle').textContent='▶ Play';clearInterval(timer);}
+document.getElementById('toggle').onclick=function(){playing?pause():play();};
+net.on('click',function(p){if(p.nodes.length){pause();highlight(p.nodes[0]);}});
+net.once('stabilizationIterationsDone',function(){net.fit({animation:true});setTimeout(play,700);});
+</script></body></html>

@@ -1,0 +1,124 @@
+{
+  "module": "uber-clone-yt",
+  "generated": "2026-06-28 06:03",
+  "analyzer": "codebase-memory-mcp",
+  "stats": {
+    "nodes": 82,
+    "edges": 109
+  },
+  "nodes": [
+    {
+      "id": "App",
+      "file": "App.js",
+      "role": "root"
+    },
+    {
+      "id": "HomeScreen",
+      "file": "screens/HomeScreen.js",
+      "role": "view"
+    },
+    {
+      "id": "Map",
+      "file": "components/Map.js",
+      "role": "shared"
+    },
+    {
+      "id": "MapScreen",
+      "file": "screens/MapScreen.js",
+      "role": "view"
+    },
+    {
+      "id": "NavFavourites",
+      "file": "components/NavFavourites.js",
+      "role": "view"
+    },
+    {
+      "id": "NavOptions",
+      "file": "components/NavOptions.js",
+      "role": "view"
+    },
+    {
+      "id": "NavigateCard",
+      "file": "screens/NavigateCard.js",
+      "role": "view"
+    },
+    {
+      "id": "RideOptionsCard",
+      "file": "screens/RideOptionsCard.js",
+      "role": "view"
+    },
+    {
+      "id": "getTravelTime",
+      "file": "components/Map.js",
+      "role": "helper"
+    },
+    {
+      "id": "selectDestination",
+      "file": "slices/navSlice.js",
+      "role": "helper"
+    },
+    {
+      "id": "selectOrigin",
+      "file": "slices/navSlice.js",
+      "role": "helper"
+    },
+    {
+      "id": "selectTravelTimeInformation",
+      "file": "slices/navSlice.js",
+      "role": "helper"
+    },
+    {
+      "id": "setOrigin",
+      "file": "slices/navSlice.js",
+      "role": "hub"
+    },
+    {
+      "id": "setDestination",
+      "file": "slices/navSlice.js",
+      "role": "hub"
+    },
+    {
+      "id": "setTravelTimeInformation",
+      "file": "slices/navSlice.js",
+      "role": "hub"
+    }
+  ],
+  "calls": [
+    {
+      "from": "HomeScreen",
+      "to": "setOrigin"
+    },
+    {
+      "from": "HomeScreen",
+      "to": "setDestination"
+    },
+    {
+      "from": "HomeScreen",
+      "to": "NavOptions"
+    },
+    {
+      "from": "HomeScreen",
+      "to": "NavFavourites"
+    },
+    {
+      "from": "Map",
+      "to": "getTravelTime"
+    },
+    {
+      "from": "MapScreen",
+      "to": "Map"
+    },
+    {
+      "from": "NavigateCard",
+      "to": "setDestination"
+    },
+    {
+      "from": "NavigateCard",
+      "to": "NavFavourites"
+    },
+    {
+      "from": "getTravelTime",
+      "to": "setTravelTimeInformation"
+    }
+  ]
+}
